@@ -1,0 +1,30 @@
+{
+  "name": "kami-desktop-client",
+  "version": "0.1.0",
+  "description": "Desktop client for Kami",
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "electron": "^1.7.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CindrInc/Kami-Desktop-Client.git"
+  },
+  "keywords": [
+    "Kami"
+  ],
+  "author": "Cindr™",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CindrInc/Kami-Desktop-Client/issues"
+  },
+  "homepage": "https://github.com/CindrInc/Kami-Desktop-Client#readme"
+}
