@@ -63,6 +63,8 @@ $(function() {
 								views = views.replace(/,/g, "");
 								info.views = parseInt(views, 10);
 
+								info.image = $animePage.find('.barContent')[3].getElementsByTagName('img')[0].getAttribute('src');
+
 
 								console.log(info);
 								formattedShows.push(info);
