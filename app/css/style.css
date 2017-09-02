@@ -1,5 +1,8 @@
 * {
+	color: #FF6F59;
 	font-family: 'Encode Sans';
+}
+body {
 }
 
 #kissanime {
@@ -45,6 +48,19 @@
 	color: #040F0F;
 	background-color: #FF6F59;
 }
+
+
+#results {
+	margin-left: 1%;
+	margin-right: 1%;
+}
+h5, h6 {
+	display: inline-block;
+	vertical-align: top;
+	margin-right: 7px;
+}
+
+
 
 .eerie {
 	color: #171A21;
