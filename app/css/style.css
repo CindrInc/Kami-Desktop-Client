@@ -54,7 +54,13 @@ body {
 	margin-left: 1%;
 	margin-right: 1%;
 }
-img {
+#loading {
+	width: 100px;
+}
+#noResults {
+	color: #FF6F59;
+}
+.thumbnail {
 	height: 250px;
 	width: 190px;
 }

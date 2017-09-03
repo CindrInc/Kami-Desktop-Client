@@ -11,13 +11,15 @@
 		<script type="text/javascript" src="js/main.js"></script>
 	</head>
 	<body>
-		<!-- <webview src="http://kissanime.ru" id="kissanime"></webview> -->
+		<webview src="http://kissanime.ru" id="kissanime"></webview>
 		<form id="searchForm" class="">
 			<input type="search" name="search" id="search" placeholder="Search...">
 			<button id="searchBtn"><i class="fa fa-search" aria-hidden="true"></i></button>
 		</form>
 
 		<div id="results">
+			<center><img id="loading" src="imgs/loading.gif"></center>
+			<center><h2 id="noResults">No results</h2></center>
 			<!-- <div class="row result">
 				<div class="three columns">
 					<img src="">
