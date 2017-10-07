@@ -2,6 +2,12 @@ $(function() {
 
 	let $response;
 	let formattedShows = [];
+	
+	/**
+	 * To make sure results from the last search won't show up in the new search
+	 * @type {Boolean}
+	 */
+	let run = true;
 
 	let $results = $('#results');
 	let elements = {
@@ -11,11 +17,10 @@ $(function() {
 		$genre: $('<span class="genre"></span>'),
 		$otherName: $('<h6 class="otherName"></h6>'),
 		$bulletOtherName: $('<h6 class="otherName">&#9643;</h6>'),
-		$breakline: $('<hr class="breakline">')
+		$breakline: $('<hr class="breakline">'),
+		$loading: $('<center><img id="loading" src="imgs/loading.gif"></center>'),
+		$noResults: $('<center><h2 id="noResults">No results</h2></center>')
 	}
-
-	$('#noResults').hide();
-	$('#loading').hide();
 
 	$('#searchForm').submit((e) => {
 		e.preventDefault();
@@ -23,14 +28,15 @@ $(function() {
 		if(search.length > 1) {
 			$results.empty();
 			$('#search').val('');
-			$('#noResults').hide();
-			$('#loading').show();
+			$results.append(elements.$loading);
 			$.ajax({
 				type: "POST",
 				url: "http://kissanime.ru/Search/SearchSuggestx",
 				data: "type=Anime" + '&keyword=' + search,
 				success: function (message) {
 					if(message) {
+						let thisRun = run;
+						run = !run;
 						$response = $(message);
 						// console.log(message);
 						
@@ -44,87 +50,94 @@ $(function() {
 								url: info.url,
 								success: function(data) {
 									// console.log(data);
-									$animePage = $(data);
-									let infoDiv = $animePage.find('.barContent')[0].getElementsByTagName('div')[1];
+									if(thisRun !== run) {
+										// console.log("Running!");
+										$animePage = $(data);
+										let infoDiv = $animePage.find('.barContent')[0].getElementsByTagName('div')[1];
 
-									info.name = infoDiv.getElementsByTagName('a')[0].textContent;
-
-
-
-									let thePs = infoDiv.getElementsByTagName('p');
+										info.name = infoDiv.getElementsByTagName('a')[0].textContent;
 
 
-									info.otherNames = [];
-									for(let x = 0; x < thePs[0].getElementsByTagName('a').length; x++) {
-										info.otherNames.push(thePs[0].getElementsByTagName('a')[x].textContent);
-									}
+
+										let thePs = infoDiv.getElementsByTagName('p');
 
 
-									info.genres = [];
-									for(let x = 0; x < thePs[1].getElementsByTagName('a').length; x++) {
-										info.genres.push(thePs[1].getElementsByTagName('a')[x].textContent);
-									}
-
-
-									let statusAndViews;
-									if(thePs[2].textContent.includes("Date")) {
-										statusAndViews =  thePs[3].textContent;
-										info.description = thePs[5].textContent;
-									} else {
-										statusAndViews = thePs[2].textContent;
-										info.description = thePs[4].textContent;
-									}
-
-									info.complete = statusAndViews[statusAndViews.indexOf("Status") + 8] === "C";
-
-									let viewsIndex = statusAndViews.indexOf("Views");
-									let views = statusAndViews.substring(viewsIndex + 7, viewsIndex + 20);
-									views = views.replace(/,/g, "");
-									info.views = parseInt(views, 10);
-
-									info.image = $animePage.find('.barContent')[3].getElementsByTagName('img')[0].getAttribute('src');
-
-
-									// console.log(info);
-									formattedShows.push(info);
-
-									let $entry = elements.$result.clone();
-									$entry.attr("href", info.url);
-
-									$entry.find('img').attr('src', info.image);
-
-									info.complete ? $entry.find('.title').html(info.name + elements.$complete.html()) : $entry.find('.title').html(info.name + elements.$ongoing.html());
-
-									for(let x = 0; x < info.genres.length; x++) {
-										let $tempGenre = elements.$genre.clone();
-										$tempGenre.text(info.genres[x]);
-										$entry.find('.genres').append($tempGenre);
-									}
-
-									$entry.find('.views').text(info.views + " views");
-
-									for(let x = 0; x < info.otherNames.length; x++) {
-										let $tempGenre = elements.$otherName.clone();
-										$tempGenre.text(info.otherNames[x]);
-										$entry.find('.otherNames').append($tempGenre);
-										if(x != info.otherNames.length - 1) {
-										 $entry.find('.otherNames').append(elements.$bulletOtherName.clone());
+										info.otherNames = [];
+										for(let x = 0; x < thePs[0].getElementsByTagName('a').length; x++) {
+											info.otherNames.push(thePs[0].getElementsByTagName('a')[x].textContent);
 										}
+
+
+										info.genres = [];
+										for(let x = 0; x < thePs[1].getElementsByTagName('a').length; x++) {
+											info.genres.push(thePs[1].getElementsByTagName('a')[x].textContent);
+										}
+
+
+										let statusAndViews;
+										if(thePs[2].textContent.includes("Date")) {
+											statusAndViews =  thePs[3].textContent;
+											info.description = thePs[5].textContent;
+										} else {
+											statusAndViews = thePs[2].textContent;
+											info.description = thePs[4].textContent;
+										}
+
+										info.complete = statusAndViews[statusAndViews.indexOf("Status") + 8] === "C";
+
+										let viewsIndex = statusAndViews.indexOf("Views");
+										let views = statusAndViews.substring(viewsIndex + 7, viewsIndex + 20);
+										views = views.replace(/,/g, "");
+										info.views = parseInt(views, 10);
+
+										info.image = $animePage.find('.barContent')[3].getElementsByTagName('img')[0].getAttribute('src');
+
+
+										// console.log(info);
+										formattedShows.push(info);
+
+										let $entry = elements.$result.clone();
+										$entry.attr("href", info.url);
+
+										$entry.find('img').attr('src', info.image);
+
+										info.complete ? $entry.find('.title').html(info.name + elements.$complete.html()) : $entry.find('.title').html(info.name + elements.$ongoing.html());
+
+										for(let x = 0; x < info.genres.length; x++) {
+											let $tempGenre = elements.$genre.clone();
+											$tempGenre.text(info.genres[x]);
+											$entry.find('.genres').append($tempGenre);
+										}
+
+										$entry.find('.views').text(info.views + " views");
+
+										for(let x = 0; x < info.otherNames.length; x++) {
+											let $tempGenre = elements.$otherName.clone();
+											$tempGenre.text(info.otherNames[x]);
+											$entry.find('.otherNames').append($tempGenre);
+											if(x != info.otherNames.length - 1) {
+											 $entry.find('.otherNames').append(elements.$bulletOtherName.clone());
+											}
+										}
+
+										info.description.length > 270 ? $entry.find('.description').text(info.description.substring(0, 300) + "...") : $entry.find('.description').text(info.description);
+										$entry.find('.description').attr("title", info.description);
+
+										if($results.has('#loading')) {
+											$('#loading').remove();
+										}
+										$results.append($entry);
+										$results.append(elements.$breakline.clone());
 									}
-
-									info.description.length > 270 ? $entry.find('.description').text(info.description.substring(0, 300) + "...") : $entry.find('.description').text(info.description);
-									$entry.find('.description').attr("title", info.description);
-
-									$('loading').hide();
-									$results.append($entry);
-									$results.append(elements.$breakline.clone());
 								}
+									
 							});
 
 						}
 					} else {
 						console.log("Nothing");
-						$('#noResults').show();
+						$results.empty();
+						$results.append(elements.$noResults);
 					}
 					
 				}
