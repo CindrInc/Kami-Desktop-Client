@@ -12,7 +12,7 @@ ipc.on('info', function(e, info) {
 		$('#summary').html(info.description);
 	});
 
-	$.get('http://kissanime.ru/Anime/Cowboy-Bebop', function(data){
+	$.get(info.url, function(data){
 	    let $episodeList = $('.listing tbody', data)[0];
 	    let episodeList = $episodeList.getElementsByTagName('tr');
 
