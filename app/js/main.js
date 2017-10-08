@@ -1,5 +1,6 @@
 $(function() {
 
+	const ipc = require('electron').ipcRenderer;
 	let $response;
 	let formattedShows = [];
 	
@@ -17,16 +18,19 @@ $(function() {
 		$genre: $('<span class="genre"></span>'),
 		$otherName: $('<h6 class="otherName"></h6>'),
 		$bulletOtherName: $('<h6 class="otherName">&#9643;</h6>'),
+		$infoIndex: $('<input class="infoIndex" type="hidden" value="">'),
 		$breakline: $('<hr class="breakline">'),
 		$loading: $('<center><img id="loading" src="imgs/loading.gif"></center>'),
 		$noResults: $('<center><h2 id="noResults">No results</h2></center>')
 	}
+
 
 	$('#searchForm').submit((e) => {
 		e.preventDefault();
 		let search = $.trim($('#search').val());
 		if(search.length > 1) {
 			$results.empty();
+			formattedShows.length = 0;//empty array
 			$('#search').val('');
 			$results.append(elements.$loading);
 			$.ajax({
@@ -45,14 +49,13 @@ $(function() {
 
 							info.url = $response[i].getAttribute('href');
 
-							let $animePage;
 							$.ajax({
 								url: info.url,
 								success: function(data) {
 									// console.log(data);
 									if(thisRun !== run) {
 										// console.log("Running!");
-										$animePage = $(data);
+										let $animePage = $(data);
 										let infoDiv = $animePage.find('.barContent')[0].getElementsByTagName('div')[1];
 
 										info.name = infoDiv.getElementsByTagName('a')[0].textContent;
@@ -94,15 +97,17 @@ $(function() {
 
 
 										// console.log(info);
-										formattedShows.push(info);
+										let infoIndex = formattedShows.push(info) - 1;
 
 										let $entry = elements.$result.clone();
 										$entry.attr("href", info.url);
+										let $infoIndex = elements.$infoIndex.clone();
+										$infoIndex.val(infoIndex);
+										$entry.append($infoIndex);
 
 										$entry.find('img').attr('src', info.image);
 
-										info.complete ? $entry.find('.title').html(info.name + elements.$complete.html()) : $entry.find('.title').html(info.name + elements.$ongoing.html());
-
+										info.complete ? $entry.find('.title').html(info.name + " " + elements.$complete[0].outerHTML) : $entry.find('.title').html(info.name + " " + elements.$ongoing[0].outerHTML);
 										for(let x = 0; x < info.genres.length; x++) {
 											let $tempGenre = elements.$genre.clone();
 											$tempGenre.text(info.genres[x]);
@@ -123,6 +128,7 @@ $(function() {
 										info.description.length > 270 ? $entry.find('.description').text(info.description.substring(0, 300) + "...") : $entry.find('.description').text(info.description);
 										$entry.find('.description').attr("title", info.description);
 
+										$entry.click(selectAnime);
 										if($results.has('#loading')) {
 											$('#loading').remove();
 										}
@@ -144,5 +150,11 @@ $(function() {
 			});
 		}
 	});
+
+	function selectAnime(e) {
+		e.preventDefault();
+		var infoIndex = $("input",this).val();
+		ipc.send('selectedAnime', formattedShows[infoIndex]);
+	}
 	
 });
