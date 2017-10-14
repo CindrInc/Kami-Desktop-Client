@@ -1,3 +1,4 @@
+const baseUrl = "http://kissanime.ru";
 const ipc = require('electron').ipcRenderer;
 
 ipc.on('info', function(e, info) {
@@ -18,7 +19,6 @@ ipc.on('info', function(e, info) {
 
 	    for(let i = 2; i < episodeList.length; i++) {
 	    	let anchor = episodeList[i].getElementsByTagName('td')[0].getElementsByTagName('a')[0];
-	    	anchor.setAttribute('href', 'http://kissanime.ru' + anchor.getAttribute('href'));
 	    	anchor.addEventListener('click', selectEpisode);
 	    	$('.content')[0].append(anchor);
 	    	$('.content')[0].append(document.createElement('hr'));
@@ -29,7 +29,7 @@ ipc.on('info', function(e, info) {
 		e.preventDefault();
 		var link = $(this).attr('href');
 		console.log(link);
-		ipc.send('selectedEpisode', link);
+		ipc.send('selected-episode', link);
 	}
 });
 

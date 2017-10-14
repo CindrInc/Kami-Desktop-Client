@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "electron": "^1.7.5"
+    "electron": "^1.8.1"
   },
   "devDependencies": {},
   "scripts": {

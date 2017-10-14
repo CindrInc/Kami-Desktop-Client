@@ -18,6 +18,7 @@
 	border: 1px solid #FF6F59;
 	/*border: none;*/
 	font-size: 1.2em;
+	cursor: progress;
 }
 #search::-webkit-input-placeholder { /* Chrome/Opera/Safari */
   color: #5D2921;

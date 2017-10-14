@@ -1,3 +1,4 @@
+const baseUrl = "http://kissanime.ru";
 $(function() {
 
 	const ipc = require('electron').ipcRenderer;
@@ -10,8 +11,10 @@ $(function() {
 	 */
 	let run = true;
 
-	let $results = $('#results');
-	let elements = {
+	const $results = $('#results');
+	const $webview = document.getElementById('kissanime');
+	const $search = $('#search');
+	const elements = {
 		$result: $('<a href=""><div class="row result"><div class="three columns"><img class="thumbnail" src=""></div><div class="nine columns"><h3 class="title"></h3><div class="genres"></div><h5 class="views"></h5><div class="otherNames"></div><p class="description"></p></div></div></a>'),
 		$complete: $('<i class="fa fa-check-circle green" title="Completed" aria-hidden="true"></i>'),
 		$ongoing: $('<i class="fa fa-times-circle blue" title="Ongoing" aria-hidden="true"></i>'),
@@ -21,8 +24,21 @@ $(function() {
 		$infoIndex: $('<input class="infoIndex" type="hidden" value="">'),
 		$breakline: $('<hr class="breakline">'),
 		$loading: $('<center><img id="loading" src="imgs/loading.gif"></center>'),
-		$noResults: $('<center><h2 id="noResults">No results</h2></center>')
+		$noResults: $('<center><h2 id="noResults">No results</h2></center>'),
 	}
+
+	$webview.addEventListener('found-in-page', function enableSearch(e) {
+		$search.prop('disabled', false);
+		$search.css('cursor', 'text');
+		$webview.stopFindInPage('clearSelection');
+		$webview.removeEventListener('found-in-page', enableSearch);
+	});
+
+	$webview.addEventListener('dom-ready', function() {
+		console.log("Found");
+		$webview.findInPage('Home');
+	});
+
 
 
 	$('#searchForm').submit((e) => {
@@ -35,7 +51,7 @@ $(function() {
 			$results.append(elements.$loading);
 			$.ajax({
 				type: "POST",
-				url: "http://kissanime.ru/Search/SearchSuggestx",
+				url: baseUrl + "/Search/SearchSuggestx",
 				data: "type=Anime" + '&keyword=' + search,
 				success: function (message) {
 					if(message) {
@@ -154,7 +170,7 @@ $(function() {
 	function selectAnime(e) {
 		e.preventDefault();
 		var infoIndex = $("input",this).val();
-		ipc.send('selectedAnime', formattedShows[infoIndex]);
+		ipc.send('selected-anime', formattedShows[infoIndex]);
 	}
 	
 });
