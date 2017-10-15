@@ -1,9 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const {app} = electron;
-const {BrowserWindow} = electron;
-const {session} = electron;
+const {app, BrowserWindow, session, Menu} = electron;
 const ipc = electron.ipcMain;
 
 
@@ -11,6 +9,71 @@ console.log("Start!");
 
 const appDirectory = 'file://' + __dirname + '/app/'
 const baseUrl = "http://kissanime.ru";
+let videoQuality = "high";
+function setQuality(menuItem, browserWindow, event) {
+	if(videoWindow) {
+		videoWindow.webContents.send('change-quality', menuItem.id);
+		videoQuality = menuItem.id;
+	}
+}
+const menuTemplate = [
+	{
+    	label: 'View',
+	    submenu: [
+	    	{role: 'reload'},
+	     	{role: 'forcereload'},
+	    	{role: 'toggledevtools'},
+	    	{type: 'separator'},
+	    	{role: 'resetzoom'},
+	    	{role: 'zoomin'},
+	    	{role: 'zoomout'},
+	    	{type: 'separator'},
+	    	{role: 'togglefullscreen'}
+	    ]
+	},
+	{
+		label: "Quality",
+		submenu: [
+			{
+				label: "720p",
+				id: "high",
+				type: "radio",
+				click: setQuality
+			},
+			{
+				label: "480p",
+				id: "medium",
+				type: "radio",
+				click: setQuality
+			},
+			{
+				label: "360p",
+				id: "poor",
+				type: "radio",
+				click: setQuality
+			}
+		],
+		click: function(){
+			console.log("Quality control!");
+		}
+	}
+];
+if (process.platform === 'darwin') {
+	menuTemplate.unshift({
+		label: app.getName(),
+	    submenu: [
+			{role: 'about'},
+			{type: 'separator'},
+			{role: 'services', submenu: []},
+			{type: 'separator'},
+			{role: 'hide'},
+			{role: 'hideothers'},
+			{role: 'unhide'},
+			{type: 'separator'},
+	    	{role: 'quit'}
+	    ]
+	});
+}
 
 let mainWindow = null;
 let episodeListWindow = null;
@@ -18,9 +81,11 @@ let captchaWindow = null;
 let videoWindow = null;
 
 app.on('ready', function() {
-	electron.session.defaultSession.clearStorageData([], function (data) {
-	    console.log(data);
-	});
+	// electron.session.defaultSession.clearStorageData([], function (data) {
+	//     console.log(data);
+	// });
+	const menu = Menu.buildFromTemplate(menuTemplate);
+	Menu.setApplicationMenu(menu);
 	mainWindow = new BrowserWindow({
 		height: 600,
 		width: 800,
@@ -46,8 +111,20 @@ ipc.on('selected-anime', function(e, info) {
 });
 
 ipc.on('selected-episode', function(e, link) {
+	if(captchaWindow) {
+		captchaWindow.destroy();
+	}
 	captchaWindow = new BrowserWindow({
-		height: 700,
+		height: 100,
+		width: 100,
+		show: false,
+		backgroundColor: '#171A21'
+	});
+	if(videoWindow) {
+		videoWindow.destroy();
+	}
+	videoWindow = new BrowserWindow({
+		height: 500,
 		width: 900,
 		backgroundColor: '#171A21'
 	});
@@ -57,40 +134,49 @@ ipc.on('selected-episode', function(e, link) {
 		captchaWindow.webContents.executeJavaScript(
 			`
 			const ipc = require('electron').ipcRenderer;
-			function tryPost() {
-				$.post('/Special/AreYouHuman2', {
-					reUrl: $('#formVerify input[name="reUrl"]').val(),
-					answerCap: "2,3,"
-				}, function(data, status) {
-					// console.log(data);
-					if(data.includes("Wrong answer.")) {
-						var captchaUrl = data.split("'")[1];
-						console.log(captchaUrl);
-						$.get(captchaUrl);
-						tryPost();
-					} else {
-						let rapidVideoUrl = data.match(/https:\\/\\/www.rapidvideo\\.com.+?"/g)[0];
-						rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
-						ipc.send('captcha-solved', rapidVideoUrl);
-					}
-				});
+			if(document.body.textContent.search("under attack") > -1) {
+				function tryPost() {
+					$.post('/Special/AreYouHuman2', {
+						reUrl: $('#formVerify input[name="reUrl"]').val(),
+						answerCap: "2,3,"
+					}, function(data, status) {
+						// console.log(data);
+						if(data.includes("Wrong answer.")) {
+							var captchaUrl = data.split("'")[1];
+							console.log(captchaUrl);
+							$.get(captchaUrl);
+							tryPost();
+						} else {
+							let rapidVideoUrl = data.match(/https:\\/\\/www.rapidvideo\\.com.+?"/g)[0];
+							rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
+							ipc.send('captcha-solved', rapidVideoUrl);
+						}
+					});
+				}
+				tryPost();
+			} else {
+				let rapidVideoUrl = document.body.innerHTML.match(/https:\\/\\/www.rapidvideo\\.com.+?"/g)[0];
+				rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
+				ipc.send('captcha-solved', rapidVideoUrl);
 			}
-			tryPost();
+
 			`);
 	});
 
 });
 
 ipc.on('captcha-solved', function(e, rapidVideoUrl) {
-	videoWindow = new BrowserWindow({
-		height: 700,
-		width: 900,
-		backgroundColor: '#171A21'
-	});
+	captchaWindow.destroy();
 
 	videoWindow.loadURL(appDirectory + 'video.html');
 	videoWindow.webContents.on('dom-ready', function(e) {
-		videoWindow.webContents.send('video-link', rapidVideoUrl);
+		videoWindow.webContents.send('video-link', {
+			link: rapidVideoUrl,
+			videoQuality: videoQuality
+		});
+	});
+	videoWindow.on('closed', function() {
+		videoWindow = null; //avoid null reference
 	});
 });
 
