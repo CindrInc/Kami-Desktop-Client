@@ -117,7 +117,7 @@ ipc.on('selected-episode', function(e, link) {
 	captchaWindow = new BrowserWindow({
 		height: 100,
 		width: 100,
-		show: false,
+		//show: false,
 		backgroundColor: '#171A21'
 	});
 	if(videoWindow) {
@@ -128,6 +128,7 @@ ipc.on('selected-episode', function(e, link) {
 		width: 900,
 		backgroundColor: '#171A21'
 	});
+	videoWindow.loadURL(appDirectory + 'video.html');
 
 	captchaWindow.loadURL(baseUrl + link);
 	captchaWindow.webContents.on('did-finish-load', function(e) {
@@ -167,14 +168,21 @@ ipc.on('selected-episode', function(e, link) {
 
 ipc.on('captcha-solved', function(e, rapidVideoUrl) {
 	captchaWindow.destroy();
-
-	videoWindow.loadURL(appDirectory + 'video.html');
-	videoWindow.webContents.on('dom-ready', function(e) {
+	if(!videoWindow.webContents.isLoading()) {
 		videoWindow.webContents.send('video-link', {
 			link: rapidVideoUrl,
 			videoQuality: videoQuality
 		});
-	});
+	} else {
+		videoWindow.webContents.on('dom-ready', function(e) {
+			videoWindow.webContents.send('video-link', {
+				link: rapidVideoUrl,
+				videoQuality: videoQuality
+			});
+		});
+	}
+	
+	
 	videoWindow.on('closed', function() {
 		videoWindow = null; //avoid null reference
 	});
