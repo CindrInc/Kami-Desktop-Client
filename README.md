@@ -31,7 +31,6 @@ To get started just pull the repo and run the following
 
 ```bash
 npm install
-npm run build
 npm start
 ```
 
