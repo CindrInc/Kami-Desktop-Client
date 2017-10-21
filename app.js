@@ -127,15 +127,6 @@ ipc.on('selected-episode', function(e, anime) {
 		show: false,
 		backgroundColor: '#171A21'
 	});
-	if(videoWindow) {
-		videoWindow.destroy();
-	}
-	videoWindow = new BrowserWindow({
-		height: 750,
-		width: 900,
-		backgroundColor: '#171A21'
-	});
-	videoWindow.loadURL(appDirectory + 'video.html');
 
 	captchaWindow.loadURL(baseUrl + anime.link);
 	captchaWindow.webContents.on('did-finish-load', function(e) {
@@ -170,6 +161,16 @@ ipc.on('selected-episode', function(e, anime) {
 
 			`);
 	});
+
+	if(videoWindow) {
+		videoWindow.destroy();
+	}
+	videoWindow = new BrowserWindow({
+		height: 500,
+		width: 900,
+		backgroundColor: '#171A21'
+	});
+	videoWindow.loadURL(appDirectory + 'video.html');
 
 	videoWindow.webContents.on('dom-ready', function(e) {
 		videoWindow.webContents.send('episode-info', anime);
