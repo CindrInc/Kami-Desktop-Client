@@ -1,0 +1,68 @@
+Client:
+
+var electron = require('electron');
+var ipc = electron.ipcRenderer;
+var kissanime = document.getElementById('kissanime');
+
+kissanime.addEventListener('dom-ready', () => {
+	kissanime.findInPage("Anime");
+
+	kissanime.addEventListener('found-in-page', (e) => {
+		console.log("found");
+		kissanime.stopFindInPage('clearSelection');
+
+		// let cookies = kissanime.getWebContents().session.cookies;
+		
+
+		
+		kissanime.getWebContents().session.cookies.get({ domain : 'kissanime.ru' }, function(error, cookies) {
+			// console.log(cookies);
+			// let cookieStr = ''
+			// for (var i = 0; i < cookies.length; i++) {
+			//     let info = cookies[i];
+			//     cookieStr += `${info.name}=${info.value};`;
+			//     console.log(info.value, info.name);
+			// }
+			// console.log(cookieStr);
+			ipc.send('kissanime_cookies', cookies);
+		});
+	});
+});
+
+ipc.on('trySearch', (e) => {
+	// $.post('http://kissanime.ru/Search/SearchSuggestx', {
+	// 	type: "Anime",
+	// 	keyword: "Naruto"
+	// } (data) => {
+	// 	console.log(data);
+	// });
+
+	$.ajax({
+		type: "POST",
+		url: "http://kissanime.ru/Search/SearchSuggestx",
+		data: "type=Anime" + '&keyword=Naruto',
+		success: function (message) {
+			console.log(message);
+		}
+	});
+
+});
+
+
+Server:
+
+ipc.on('kissanime_cookies', (e, cookies) => {
+	// console.log(cookie);
+	for(var i = 0; i < cookies.length; i++) {
+		// console.log(cookies[i]);
+		cookies[i].url = "http://kissanime.ru/"
+		session.defaultSession.cookies.set(cookies[i], (err) => {
+			if(err) throw err;
+		});
+		mainWindow.webContents.session.cookies.set(cookies[i], (err) => {
+			if(err) throw err;
+		});
+	}
+
+	e.sender.send("trySearch");
+});
