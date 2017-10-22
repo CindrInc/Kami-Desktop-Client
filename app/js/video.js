@@ -8,9 +8,12 @@ let menu = Menu.getApplicationMenu();
 const baseUrl = "http://kissanime.ru";
 
 let videoLinks = {};
+let anime;
 
-ipc.on('episode-info', function(e, anime) {
-	document.title = anime.name + " | " + anime.episode;
+ipc.on('episode-info', function(e, episodeInfo) {
+	anime = episodeInfo;
+	document.title = episodeInfo.episodeName;
+	//episodeInfo.name + " | " + 
 });
 
 ipc.on('video-link', function(e, videoInfo) {
@@ -27,6 +30,7 @@ ipc.on('video-link', function(e, videoInfo) {
 				});
 				$video.prop("controls", true);
 				$video.prop("autoplay", true);
+				nextVideoListener($video.get(0));
 				$('body').html("");
 				$('body').append($video);
 			});
@@ -49,9 +53,20 @@ ipc.on('change-quality', function(e, videoQuality) {
 	$video.prop("controls", true);
 	$('body').html("");
 	$('body').append($video);
-	$('video').get(0).currentTime = currentTime;
-	$('video').get(0).play();
+	$video = $('video').get(0);
+	$video.currentTime = currentTime;
+	$video.play();
+	nextVideoListener($video);
 });
+
+function nextVideoListener(video) {
+	video.addEventListener('ended', function(e) {
+		$('body').html('<center><h1 class="blue">Starting next video...</h1></center>');
+		console.log(anime.episodeNumber);
+		let nextEpisodeNumber = parseInt(anime.episodeNumber) + 1;
+		ipc.send('play-next-episode', nextEpisodeNumber);
+	});
+}
 
 $(function() {
 
@@ -65,4 +80,5 @@ $(function() {
 			}
 		}
 	});
+
 });

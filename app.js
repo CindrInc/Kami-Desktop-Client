@@ -113,6 +113,14 @@ ipc.on('selected-anime', function(e, info) {
 	});
 	episodeListWindow.on('closed', function() {
 		episodeListWindow = null;
+		if(videoWindow) {
+			videoWindow.destroy();
+			videoWindow = null;
+		}
+		if(captchaWindow) {
+			captchaWindow.destroy();
+			captchaWindow = null;
+		}
 	});
 
 });
@@ -180,6 +188,7 @@ ipc.on('selected-episode', function(e, anime) {
 
 ipc.on('captcha-solved', function(e, rapidVideoUrl) {
 	captchaWindow.destroy();
+	captchaWindow = null;
 	if(!videoWindow.webContents.isLoading()) {
 		videoWindow.webContents.send('video-link', {
 			link: rapidVideoUrl,
@@ -198,5 +207,10 @@ ipc.on('captcha-solved', function(e, rapidVideoUrl) {
 	videoWindow.on('closed', function() {
 		videoWindow = null; //avoid null reference
 	});
+});
+
+ipc.on('play-next-episode', function(e, nextEpisodeNumber) {
+	console.log("Next episode number: " + nextEpisodeNumber);
+	episodeListWindow.webContents.send('play-next-episode', nextEpisodeNumber);
 });
 

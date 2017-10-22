@@ -1,7 +1,10 @@
 const baseUrl = "http://kissanime.ru";
 const ipc = require('electron').ipcRenderer;
 
+let animeInfo;
+
 ipc.on('info', function(e, info) {
+	animeInfo = info;
 	$('body').css('background-image', 'linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.9)), url("' + info.image +'")');
 	$('body').css('background-repeat', 'no-repeat');
 	$('body').css('background-position', 'top center');
@@ -19,30 +22,43 @@ ipc.on('info', function(e, info) {
 
 	    for(let i = 2; i < episodeList.length; i++) {
 	    	let anchor = episodeList[i].getElementsByTagName('td')[0].getElementsByTagName('a')[0];
-	    	anchor.addEventListener('click', selectEpisode);
+	    	anchor.addEventListener('click', function(e) {
+	    		e.preventDefault();
+	    		let episode = $(this);
+	    		playEpisode(episode);
+	    	});
+	    	anchor.setAttribute("index", episodeList.length - i);
 	    	$('.content')[0].append(anchor);
 	    	$('.content')[0].append(document.createElement('hr'));
 	    }
 	});
-
-	function selectEpisode(e) {
-		e.preventDefault();
-		var link = $(this).attr('href');
-		console.log(link);
-		/**
-		 * Anime object to send to official video page
-		 * @param name = Anime Name
-		 * @param link = Episode link
-		 * @param episode = Episode Name
-		 * @type {Object}
-		 */
-		let anime = {};
-		anime.name = info.name;
-		anime.link = link;
-		anime.episode = $(this).text();
-		ipc.send('selected-episode', anime);
-	}
 });
+
+ipc.on('play-next-episode', function(e, nextEpisodeNumber) {
+	let episode = $('a[index="' + nextEpisodeNumber + '"]');
+	playEpisode(episode);
+});
+
+function playEpisode(episode) {
+	let link = episode.attr('href');
+	let episodeNumber = episode.attr('index');
+	let episodeName = episode.text();
+	/**
+	 * Anime object to send to official video page
+	 * @param name = Anime Name
+	 * @param episodeNumber = Episode Number
+	 * @param link = Episode link
+	 * @param episodeName = Episode Name
+	 * @type {Object}
+	 */
+	let anime = {
+		name: animeInfo.name,
+		link: link,
+		episodeNumber: episodeNumber,
+		episodeName: episodeName
+	};
+	ipc.send('selected-episode', anime);
+}
 
 $(function() {
 });
