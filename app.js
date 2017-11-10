@@ -141,7 +141,7 @@ ipc.on('selected-episode', function(e, anime) {
 		captchaWindow.webContents.executeJavaScript(
 			`
 			const ipc = require('electron').ipcRenderer;
-			if(document.body.textContent.search("under attack") > -1) {
+			if(document.body.textContent.search("under attack") === -1) {
 				function tryPost() {
 					$.post('/Special/AreYouHuman2', {
 						reUrl: $('#formVerify input[name="reUrl"]').val(),

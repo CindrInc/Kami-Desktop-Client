@@ -1,5 +1,5 @@
 const ipc = require('electron').ipcRenderer;
-if(document.body.textContent.search("under attack") > -1) {
+if(document.body.textContent.search("under attack") === -1) {
 	function tryPost() {
 		$.post('/Special/AreYouHuman2', {
 			reUrl: $('#formVerify input[name="reUrl"]').val(),
