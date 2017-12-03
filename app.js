@@ -88,7 +88,7 @@ app.on('ready', function() {
 	Menu.setApplicationMenu(menu);
 	mainWindow = new BrowserWindow({
 		height: 600,
-		width: 800,
+		width: 1100,
 		backgroundColor: '#171A21'
 	});
 

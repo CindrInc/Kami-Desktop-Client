@@ -4,6 +4,7 @@ $(function() {
 	const ipc = require('electron').ipcRenderer;
 	let $response;
 	let formattedShows = [];
+	let selectedAnimeInfo;
 	
 	/**
 	 * To make sure results from the last search won't show up in the new search
@@ -169,8 +170,58 @@ $(function() {
 
 	function selectAnime(e) {
 		e.preventDefault();
-		var infoIndex = $("input",this).val();
-		ipc.send('selected-anime', formattedShows[infoIndex]);
+		let infoIndex = $("input",this).val();
+		selectedAnimeInfo = formattedShows[infoIndex];
+
+
+		$('#episode').css('background-image', 'linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.9)), url("' + selectedAnimeInfo.image +'")');
+		$('#episode').css('background-position', 'top center');
+		$('#episode').css('background-size', 'cover');
+		$('#title').text(selectedAnimeInfo.name);
+		$('#summary').html(selectedAnimeInfo.description.length > 270 ? selectedAnimeInfo.description.substring(0, 270) + ' <span title="More info" id="moreinfo">...</span>' : selectedAnimeInfo.description);
+		$('.episodes').empty();
+
+		$('#moreinfo').click(function(e) {
+			$('#summary').html(selectedAnimeInfo.description);
+		});
+
+		$.get(selectedAnimeInfo.url, function(data){
+		    let $episodeList = $('.listing tbody', data)[0];
+		    let episodeList = $episodeList.getElementsByTagName('tr');
+
+		    for(let i = 2; i < episodeList.length; i++) {
+		    	let anchor = episodeList[i].getElementsByTagName('td')[0].getElementsByTagName('a')[0];
+		    	anchor.addEventListener('click', function(e) {
+		    		e.preventDefault();
+		    		let episode = $(this);
+		    		playEpisode(episode);
+		    	});
+		    	anchor.setAttribute("index", episodeList.length - i);
+		    	anchor.classList.add("episode");
+		    	$('.episodes')[0].append(anchor);
+		    	$('.episodes')[0].append(document.createElement('hr'));
+		    }
+		});
+	}
+	function playEpisode(episode) {
+		let link = episode.attr('href');
+		let episodeNumber = episode.attr('index');
+		let episodeName = episode.text();
+		/**
+		 * Anime object to send to official video page
+		 * @param name = Anime Name
+		 * @param episodeNumber = Episode Number
+		 * @param link = Episode link
+		 * @param episodeName = Episode Name
+		 * @type {Object}
+		 */
+		let anime = {
+			name: selectedAnimeInfo.name,
+			link: link,
+			episodeNumber: episodeNumber,
+			episodeName: episodeName
+		};
+		ipc.send('selected-episode', anime);
 	}
 	
 });

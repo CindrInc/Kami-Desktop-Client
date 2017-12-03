@@ -1,7 +1,7 @@
 {
   "name": "kami-desktop-client",
   "productName": "Kami Desktop Client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Desktop client for Kami",
   "main": "app.js",
   "directories": {

@@ -28,6 +28,7 @@ ipc.on('info', function(e, info) {
 	    		playEpisode(episode);
 	    	});
 	    	anchor.setAttribute("index", episodeList.length - i);
+	    	anchor.classList.add("episode");
 	    	$('.content')[0].append(anchor);
 	    	$('.content')[0].append(document.createElement('hr'));
 	    }

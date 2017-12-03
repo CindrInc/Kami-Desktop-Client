@@ -12,27 +12,40 @@
 		<script type="text/javascript" src="js/main.js"></script>
 	</head>
 	<body>
-		<webview src="http://kissanime.ru" id="kissanime"></webview>
-		<form id="searchForm" class="">
-			<input type="search" name="search" id="search" placeholder="Search..." disabled="true">
-			<button id="searchBtn"><i class="fa fa-search" aria-hidden="true"></i></button>
-		</form>
+		<div id="main">
+			<webview src="http://kissanime.ru" id="kissanime"></webview>
+			<form id="searchForm" class="">
+				<input type="search" name="search" id="search" placeholder="Search..." disabled="true">
+				<button id="searchBtn"><i class="fa fa-search" aria-hidden="true"></i></button>
+			</form>
 
-		<div id="results">
-			<!-- <div class="row result">
-				<div class="three columns">
-					<img src="">
-				</div>
-				<div class="nine columns">
-					<h3 class="title"></h3>
-					<div class="genres">
-						
+			<div id="results">
+				<!-- <div class="row result">
+					<div class="three columns">
+						<img src="">
 					</div>
-					<h5 class="views"></h5>
-					<div class="otherNames"></div>
-					<p class="description"></p>
+					<div class="nine columns">
+						<h3 class="title"></h3>
+						<div class="genres">
+							
+						</div>
+						<h5 class="views"></h5>
+						<div class="otherNames"></div>
+						<p class="description"></p>
+					</div>
+				</div> -->
+			</div>
+		</div>
+		<div id="episode">
+			<div class="header">&nbsp;</div>
+			<div class="content">
+				<h1 id="title"></h1>
+				<p class="blue" id="summary"></p>
+				<br>
+				<div class="episodes">
+					
 				</div>
-			</div> -->
+			</div>
 		</div>
 		
 	</body>
