@@ -11,10 +11,8 @@ const appDirectory = 'file://' + __dirname + '/app/'
 const baseUrl = "http://kissanime.ru";
 let videoQuality = "high";
 function setQuality(menuItem, browserWindow, event) {
-	if(videoWindow) {
-		mainWindow.webContents.send('change-quality', menuItem.id);
-		videoQuality = menuItem.id;
-	}
+	mainWindow.webContents.send('change-quality', menuItem.id);
+	videoQuality = menuItem.id;
 }
 const menuTemplate = [
 	{
