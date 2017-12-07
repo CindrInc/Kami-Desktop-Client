@@ -22,7 +22,7 @@ ipc.on('video-link', function(e, videoInfo) {
 		$.get(link + "480p", function(data2){
 			$.get(link + "360p", function(data3){
 				let $data = $(data3);
-				videoLinks.poor = $data.find('video source').attr('src');
+				videoLinks.low = $data.find('video source').attr('src');
 				let $video = $('<video>', {
 					src: videoLinks[videoInfo.videoQuality],
 					height: "100%",

@@ -12,7 +12,7 @@ const baseUrl = "http://kissanime.ru";
 let videoQuality = "high";
 function setQuality(menuItem, browserWindow, event) {
 	if(videoWindow) {
-		videoWindow.webContents.send('change-quality', menuItem.id);
+		mainWindow.webContents.send('change-quality', menuItem.id);
 		videoQuality = menuItem.id;
 	}
 }
@@ -48,7 +48,7 @@ const menuTemplate = [
 			},
 			{
 				label: "360p",
-				id: "poor",
+				id: "low",
 				type: "radio",
 				click: setQuality
 			}
@@ -76,9 +76,7 @@ if (process.platform === 'darwin') {
 }
 
 let mainWindow = null;
-let episodeListWindow = null;
 let captchaWindow = null;
-let videoWindow = null;
 
 app.on('ready', function() {
 	// electron.session.defaultSession.clearStorageData([], function (data) {
@@ -100,40 +98,14 @@ app.on('ready', function() {
 	
 });
 
-ipc.on('selected-anime', function(e, info) {
-	episodeListWindow = new BrowserWindow({
-		height: 600,
-		width: 300,
-		backgroundColor: '#171A21'
-	});
-
-	episodeListWindow.loadURL(appDirectory + 'episodeList.html');
-	episodeListWindow.webContents.on('dom-ready', function(e) {
-		episodeListWindow.webContents.send('info', info);
-	});
-	episodeListWindow.on('closed', function() {
-		episodeListWindow = null;
-		if(videoWindow) {
-			videoWindow.destroy();
-			videoWindow = null;
-		}
-		if(captchaWindow) {
-			captchaWindow.destroy();
-			captchaWindow = null;
-		}
-	});
-
-});
-
 ipc.on('selected-episode', function(e, anime) {
 	if(captchaWindow) {
 		captchaWindow.destroy();
 	}
 	captchaWindow = new BrowserWindow({
-		height: 100,
-		width: 100,
 		show: false,
-		backgroundColor: '#171A21'
+		height: 600,
+		width: 600
 	});
 
 	captchaWindow.loadURL(baseUrl + anime.link);
@@ -170,42 +142,14 @@ ipc.on('selected-episode', function(e, anime) {
 			`);
 	});
 
-	if(videoWindow) {
-		videoWindow.destroy();
-	}
-	videoWindow = new BrowserWindow({
-		height: 500,
-		width: 900,
-		backgroundColor: '#171A21'
-	});
-	videoWindow.loadURL(appDirectory + 'video.html');
-
-	videoWindow.webContents.on('dom-ready', function(e) {
-		videoWindow.webContents.send('episode-info', anime);
-	});
-
 });
 
 ipc.on('captcha-solved', function(e, rapidVideoUrl) {
 	captchaWindow.destroy();
 	captchaWindow = null;
-	if(!videoWindow.webContents.isLoading()) {
-		videoWindow.webContents.send('video-link', {
-			link: rapidVideoUrl,
-			videoQuality: videoQuality
-		});
-	} else {
-		videoWindow.webContents.on('dom-ready', function(e) {
-			videoWindow.webContents.send('video-link', {
-				link: rapidVideoUrl,
-				videoQuality: videoQuality
-			});
-		});
-	}
-	
-	
-	videoWindow.on('closed', function() {
-		videoWindow = null; //avoid null reference
+	mainWindow.webContents.send('video-link', {
+		link: rapidVideoUrl,
+		videoQuality: videoQuality
 	});
 });
 

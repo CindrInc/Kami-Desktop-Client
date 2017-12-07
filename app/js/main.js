@@ -25,7 +25,7 @@ $(function() {
 		$infoIndex: $('<input class="infoIndex" type="hidden" value="">'),
 		$breakline: $('<hr class="breakline">'),
 		$loading: $('<center><img id="loading" src="imgs/loading.gif"></center>'),
-		$noResults: $('<center><h2 id="noResults">No results</h2></center>'),
+		$noResults: $('<center><h2 id="noResults">No results</h2></center>')
 	}
 
 	$webview.addEventListener('found-in-page', function enableSearch(e) {
@@ -34,10 +34,16 @@ $(function() {
 		$webview.stopFindInPage('clearSelection');
 		$webview.removeEventListener('found-in-page', enableSearch);
 	});
-
 	$webview.addEventListener('dom-ready', function() {
 		console.log("Found");
 		$webview.findInPage('Home');
+	});
+	$('#videoDiv').on('click', function(e) {
+		if(e.target == this) {
+			$('#videoDiv').hide();
+			let $video = $('video').get(0);
+			$video.pause();
+		}
 	});
 
 
@@ -177,7 +183,7 @@ $(function() {
 		$('#episode').css('background-image', 'linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.9)), url("' + selectedAnimeInfo.image +'")');
 		$('#episode').css('background-position', 'top center');
 		$('#episode').css('background-size', 'cover');
-		$('#title').text(selectedAnimeInfo.name);
+		$('#animeTitle').text(selectedAnimeInfo.name);
 		$('#summary').html(selectedAnimeInfo.description.length > 270 ? selectedAnimeInfo.description.substring(0, 270) + ' <span title="More info" id="moreinfo">...</span>' : selectedAnimeInfo.description);
 		$('.episodes').empty();
 
@@ -222,6 +228,49 @@ $(function() {
 			episodeName: episodeName
 		};
 		ipc.send('selected-episode', anime);
+		$('#episodeTitle').text(anime.name);
+		$('#episodeNumber').text("Episode #: " + anime.episodeNumber);
+		$('#videoDiv').show();
 	}
+
+	ipc.on('video-link', function(e, videoInfo) {
+		let link = videoInfo.link + "&q=";
+		switch(videoInfo.videoQuality) {
+			case 'high':
+				link += "720p";
+				break;
+			case 'medium':
+				link += "480p";
+				break;
+			case 'low':
+				link += "360p";
+				break;
+			default:
+				console.log("Crap. Not a possible quality. What the hell went wrong???");
+		}
+
+		$.get(link, function(data){
+			$('video').remove();
+			let $data = $(data);
+			let videoLink = $data.find('video source').attr('src');
+			let $video = $('<video>', {
+				src: videoLink
+			});
+			$video.prop("controls", true);
+			$video.prop("autoplay", true);
+			// nextVideoListener($video.get(0));
+			$('#videoDiv').append($video);
+		});
+	});
+
+	// function nextVideoListener(video) {
+	// 	video.addEventListener('ended', function(e) {
+	// 		$('body').html('<center><h1 class="blue">Starting next video...</h1></center>');
+	// 		console.log(anime.episodeNumber);
+	// 		let nextEpisodeNumber = parseInt(anime.episodeNumber) + 1;
+	// 		ipc.send('play-next-episode', nextEpisodeNumber);
+	// 	});
+	// }
+
 	
 });
