@@ -39,8 +39,8 @@
 		<div id="episode">
 			<div class="header">&nbsp;</div>
 			<div class="content">
-				<h1 id="animeTitle"></h1>
-				<p class="blue" id="summary"></p>
+				<h1 id="animeTitle">Thank you for using Kami!</h1>
+				<p class="blue" id="summary">I hope you enjoy a less bloated way to watch anime. If you have any feature requests or bug reports, please create an issue @ <a href="https://github.com/CindrInc/Kami-Desktop-Client/issues">github.com/CindrInc/Kami-Desktop-Client/issues</a></p>
 				<br>
 				<div class="episodes">
 					
@@ -50,7 +50,17 @@
 		<div id="videoDiv">
 			<h1 id="episodeTitle"></h1>
 			<h4 id="episodeNumber"></h4>
-
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" id="videoLoading">
+			    <defs>
+			      <clipPath id="zigzag-clip-a862b24953b8e8">
+			        <rect x="20" y="0" width="60" height="100"></rect>
+			      </clipPath>
+			    </defs>
+			    <path fill="none" stroke="#ff6f59" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" clip-path="url(#zigzag-clip-a862b24953b8e8)" d="M90,76.7V28.3c0-2.7-2.2-5-5-5h-3.4c-2.7,0-5,2.2-5,5v43.4c0,2.7-2.2,5-5,5h-3.4c-2.7,0-5-2.2-5-5V28.3c0-2.7-2.2-5-5-5H55 c-2.7,0-5,2.2-5,5v43.4c0,2.7-2.2,5-5,5h-3.4c-2.7,0-5-2.2-5-5V28.3c0-2.7-2.2-5-5-5h-3.4c-2.7,0-5,2.2-5,5v43.4c0,2.7-2.2,5-5,5H15 c-2.7,0-5-2.2-5-5V23.3">
+			      <animateTransform attributeName="transform" type="translate" calcMode="linear" values="-20 0;7 0" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animateTransform>
+			      <animate attributeName="stroke-dasharray" calcMode="linear" values="0 72 125 232;0 197 125 233" keyTimes="0;1" dur="1" begin="0s" repeatCount="indefinite"></animate>
+			    </path>
+			  </svg>
 		</div>
 		
 	</body>

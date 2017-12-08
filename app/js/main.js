@@ -24,7 +24,7 @@ $(function() {
 		$bulletOtherName: $('<h6 class="otherName">&#9643;</h6>'),
 		$infoIndex: $('<input class="infoIndex" type="hidden" value="">'),
 		$breakline: $('<hr class="breakline">'),
-		$loading: $('<center><img id="loading" src="imgs/loading.gif"></center>'),
+		$loading: $('<center><img id="animeLoading" src="imgs/loading.gif"></center>'),
 		$noResults: $('<center><h2 id="noResults">No results</h2></center>')
 	}
 
@@ -152,8 +152,8 @@ $(function() {
 										$entry.find('.description').attr("title", info.description);
 
 										$entry.click(selectAnime);
-										if($results.has('#loading')) {
-											$('#loading').remove();
+										if($results.has('#animeLoading')) {
+											$('#animeLoading').remove();
 										}
 										$results.append($entry);
 										$results.append(elements.$breakline.clone());
@@ -209,7 +209,13 @@ $(function() {
 		    }
 		});
 	}
+
+	/**
+	 * When you click an episode from the episodeList
+	 * @param  {jqueryObj} episode episode anchor tag as jquery objected
+	 */
 	function playEpisode(episode) {
+		$('video').remove();
 		let link = episode.attr('href');
 		let episodeNumber = episode.attr('index');
 		let episodeName = episode.text();
@@ -230,6 +236,7 @@ $(function() {
 		ipc.send('selected-episode', anime);
 		$('#episodeTitle').text(anime.name);
 		$('#episodeNumber').text("Episode #: " + anime.episodeNumber);
+		$('#videoLoading').show();
 		$('#videoDiv').show();
 	}
 
@@ -250,7 +257,6 @@ $(function() {
 		}
 
 		$.get(link, function(data){
-			$('video').remove();
 			let $data = $(data);
 			let videoLink = $data.find('video source').attr('src');
 			let $video = $('<video>', {
@@ -259,6 +265,7 @@ $(function() {
 			$video.prop("controls", true);
 			$video.prop("autoplay", true);
 			// nextVideoListener($video.get(0));
+			$('#videoLoading').hide();
 			$('#videoDiv').append($video);
 		});
 	});

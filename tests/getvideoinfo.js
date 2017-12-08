@@ -1,5 +1,5 @@
 const ipc = require('electron').ipcRenderer;
-if(document.body.textContent.search("under attack") === -1) {
+if(document.body.textContent.search("captcha") > -1) {
 	function tryPost() {
 		$.post('/Special/AreYouHuman2', {
 			reUrl: $('#formVerify input[name="reUrl"]').val(),
@@ -14,6 +14,7 @@ if(document.body.textContent.search("under attack") === -1) {
 			} else {
 				let rapidVideoUrl = data.match(/https:\/\/www.rapidvideo\.com.+?"/g)[0];
 				rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
+				console.log(rapidVideoUrl);
 				ipc.send('captcha-solved', rapidVideoUrl);
 			}
 		});

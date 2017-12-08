@@ -111,7 +111,7 @@ ipc.on('selected-episode', function(e, anime) {
 		captchaWindow.webContents.executeJavaScript(
 			`
 			const ipc = require('electron').ipcRenderer;
-			if(document.body.textContent.search("under attack") === -1) {
+			if(document.body.textContent.search("captcha") > -1) {
 				function tryPost() {
 					$.post('/Special/AreYouHuman2', {
 						reUrl: $('#formVerify input[name="reUrl"]').val(),
@@ -126,6 +126,7 @@ ipc.on('selected-episode', function(e, anime) {
 						} else {
 							let rapidVideoUrl = data.match(/https:\\/\\/www.rapidvideo\\.com.+?"/g)[0];
 							rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
+							console.log(rapidVideoUrl);
 							ipc.send('captcha-solved', rapidVideoUrl);
 						}
 					});
