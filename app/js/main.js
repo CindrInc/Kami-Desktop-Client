@@ -5,6 +5,7 @@ $(function() {
 	let $response;
 	let formattedShows = [];
 	let selectedAnimeInfo;
+	let currentEpisode;
 	
 	/**
 	 * To make sure results from the last search won't show up in the new search
@@ -16,9 +17,9 @@ $(function() {
 	const $webview = document.getElementById('kissanime');
 	const $search = $('#search');
 	const elements = {
-		$result: $('<a href=""><div class="row result"><div class="three columns"><img class="thumbnail" src=""></div><div class="nine columns"><h3 class="title"></h3><div class="genres"></div><h5 class="views"></h5><div class="otherNames"></div><p class="description"></p></div></div></a>'),
-		$complete: $('<i class="fa fa-check-circle green" title="Completed" aria-hidden="true"></i>'),
-		$ongoing: $('<i class="fa fa-times-circle blue" title="Ongoing" aria-hidden="true"></i>'),
+		$result: $('<a href=""><div class="row result"><div class="three columns"><img class="thumbnail" src=""></div><div class="nine columns"><h3 class="title"></h3><div class="genres"></div><h5 class="views"></h5><div class="otherNames"></div><p class="description red"></p></div></div></a>'),
+		$complete: $('<i class="fas fa-check-circle green" title="Completed" aria-hidden="true"></i>'),
+		$ongoing: $('<i class="fas fa-times-circle blue" title="Ongoing" aria-hidden="true"></i>'),
 		$genre: $('<span class="genre"></span>'),
 		$otherName: $('<h6 class="otherName"></h6>'),
 		$bulletOtherName: $('<h6 class="otherName">&#9643;</h6>'),
@@ -38,12 +39,33 @@ $(function() {
 		console.log("Found");
 		$webview.findInPage('Home');
 	});
-	$('#videoDiv').on('click', function(e) {
+	$('#videoDiv').click(function(e) {
 		if(e.target == this) {
 			$('#videoDiv').hide();
+			$('#openVideo').show();
 			let $video = $('video').get(0);
 			$video.pause();
 		}
+	});
+	$('#previousEpisode').click(function(e) {
+		if(currentEpisode.episodeNumber > 1) {
+			let previousEpisodeNumber = parseInt(currentEpisode.episodeNumber) - 1;
+			let $episode = $('a[index="' + previousEpisodeNumber + '"]');
+			playEpisode($episode);
+		}
+	});
+	$('#nextEpisode').click(function(e) {
+		let nextEpisodeNumber = parseInt(currentEpisode.episodeNumber) + 1;
+		let $episode = $('a[index="' + nextEpisodeNumber + '"]');
+		if($episode) {
+			playEpisode($episode);
+		}
+	});
+	$('#openVideo').click(function(e) {
+		$('#videoDiv').show();
+		$('#openVideo').hide();
+		let $video = $('video').get(0);
+		$video.play();
 	});
 
 
@@ -214,11 +236,11 @@ $(function() {
 	 * When you click an episode from the episodeList
 	 * @param  {jqueryObj} episode episode anchor tag as jquery objected
 	 */
-	function playEpisode(episode) {
+	function playEpisode($episode) {
 		$('video').remove();
-		let link = episode.attr('href');
-		let episodeNumber = episode.attr('index');
-		let episodeName = episode.text();
+		let link = $episode.attr('href');
+		let episodeNumber = $episode.attr('index');
+		let episodeName = $episode.text();
 		/**
 		 * Anime object to send to official video page
 		 * @param name = Anime Name
@@ -227,15 +249,15 @@ $(function() {
 		 * @param episodeName = Episode Name
 		 * @type {Object}
 		 */
-		let anime = {
+		currentEpisode = {
 			name: selectedAnimeInfo.name,
 			link: link,
 			episodeNumber: episodeNumber,
 			episodeName: episodeName
 		};
-		ipc.send('selected-episode', anime);
-		$('#episodeTitle').text(anime.name);
-		$('#episodeNumber').text("Episode #: " + anime.episodeNumber);
+		ipc.send('selected-episode', currentEpisode);
+		$('#episodeTitle').text(currentEpisode.name);
+		$('#episodeNumber').text("Episode #: " + currentEpisode.episodeNumber);
 		$('#videoLoading').show();
 		$('#videoDiv').show();
 	}
@@ -268,6 +290,19 @@ $(function() {
 			$('#videoLoading').hide();
 			$('#videoDiv').append($video);
 		});
+	});
+
+	$(document).on('keypress', function(e) {
+		if(e.keyCode == 32) {
+			let $video = $('video').get(0);
+			if($video) {
+				if($video.paused) {
+					$video.play();
+				} else {
+					$video.pause();
+				}
+			}
+		}
 	});
 
 	// function nextVideoListener(video) {

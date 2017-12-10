@@ -2,7 +2,8 @@
 <html>
 	<head>
 		<title>Kami Desktop Client</title>
-		<script src="https://use.fontawesome.com/ec94181607.js"></script>
+		<script defer type="text/javascript" src="js/fa-solid.min.js"></script>
+		<script type="text/javascript" src="js/fontawesome.min.js"></script>
 		<link href="https://fonts.googleapis.com/css?family=Encode+Sans:400,700" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="css/normalize.css">
 		<link rel="stylesheet" type="text/css" href="css/skeleton.css">
@@ -48,9 +49,14 @@
 			</div>
 		</div>
 		<div id="videoDiv">
-			<h1 id="episodeTitle"></h1>
-			<h4 id="episodeNumber"></h4>
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" id="videoLoading">
+			<i id="previousEpisode" class="fas fa-step-backward episodeIterator"></i>
+			<div id="episodeInfo">
+				<h1 id="episodeTitle"></h1>
+				<h4 id="episodeNumber"></h4>
+			</div>
+			<i id="nextEpisode" class="fas fa-step-forward episodeIterator"></i>
+			<br>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" id="videoLoading" title="Solving captcha...">
 			    <defs>
 			      <clipPath id="zigzag-clip-a862b24953b8e8">
 			        <rect x="20" y="0" width="60" height="100"></rect>
@@ -62,6 +68,8 @@
 			    </path>
 			  </svg>
 		</div>
+
+		<i id="openVideo" class="fas fa-external-link-square-alt"></i>
 		
 	</body>
 </html>

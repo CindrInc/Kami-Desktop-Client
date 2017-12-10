@@ -73,10 +73,12 @@ $(function() {
 	$(document).on('keypress', function(e) {
 		if(e.keyCode == 32) {
 			let $video = $('video').get(0);
-			if($video.paused) {
-				$video.play();
-			} else {
-				$video.pause();
+			if($video) {
+				if($video.paused) {
+					$video.play();
+				} else {
+					$video.pause();
+				}
 			}
 		}
 	});
