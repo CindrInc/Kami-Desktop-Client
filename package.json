@@ -16,7 +16,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "package:mac": "electron-packager . --overwrite --platform=darwin --icon=./assets/mac_logo.icns --out=./builds",
     "package:win": "electron-packager . --overwrite --platform=win32 --icon=./assets/windows_logo.ico --out=./builds",
-    "package:linux": "electron-packager . --overwrite --platform=linux --icon=./assets/linux_logo.ico --out=./builds"
+    "package:linux": "electron-packager . --overwrite --platform=linux --icon=./assets/linux_logo.png --out=./builds"
   },
   "repository": {
     "type": "git",
