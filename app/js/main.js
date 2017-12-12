@@ -67,9 +67,6 @@ $(function() {
 		let $video = $('video').get(0);
 		$video.play();
 	});
-
-
-
 	$('#searchForm').submit((e) => {
 		e.preventDefault();
 		let search = $.trim($('#search').val());
@@ -142,43 +139,7 @@ $(function() {
 
 
 										// console.log(info);
-										let infoIndex = formattedShows.push(info) - 1;
-
-										let $entry = elements.$result.clone();
-										$entry.attr("href", info.url);
-										let $infoIndex = elements.$infoIndex.clone();
-										$infoIndex.val(infoIndex);
-										$entry.append($infoIndex);
-
-										$entry.find('img').attr('src', info.image);
-
-										info.complete ? $entry.find('.title').html(info.name + " " + elements.$complete[0].outerHTML) : $entry.find('.title').html(info.name + " " + elements.$ongoing[0].outerHTML);
-										for(let x = 0; x < info.genres.length; x++) {
-											let $tempGenre = elements.$genre.clone();
-											$tempGenre.text(info.genres[x]);
-											$entry.find('.genres').append($tempGenre);
-										}
-
-										$entry.find('.views').text(info.views + " views");
-
-										for(let x = 0; x < info.otherNames.length; x++) {
-											let $tempGenre = elements.$otherName.clone();
-											$tempGenre.text(info.otherNames[x]);
-											$entry.find('.otherNames').append($tempGenre);
-											if(x != info.otherNames.length - 1) {
-											 $entry.find('.otherNames').append(elements.$bulletOtherName.clone());
-											}
-										}
-
-										info.description.length > 270 ? $entry.find('.description').text(info.description.substring(0, 300) + "...") : $entry.find('.description').text(info.description);
-										$entry.find('.description').attr("title", info.description);
-
-										$entry.click(selectAnime);
-										if($results.has('#animeLoading')) {
-											$('#animeLoading').remove();
-										}
-										$results.append($entry);
-										$results.append(elements.$breakline.clone());
+										populateAnimeWindow(info);
 									}
 								}
 									
@@ -196,12 +157,52 @@ $(function() {
 		}
 	});
 
-	function selectAnime(e) {
-		e.preventDefault();
-		let infoIndex = $("input",this).val();
-		selectedAnimeInfo = formattedShows[infoIndex];
 
+	function populateAnimeWindow(info) {
+		let infoIndex = formattedShows.push(info) - 1;
 
+		let $entry = elements.$result.clone();
+		$entry.attr("href", info.url);
+		let $infoIndex = elements.$infoIndex.clone();
+		$infoIndex.val(infoIndex);
+		$entry.append($infoIndex);
+
+		$entry.find('img').attr('src', info.image);
+
+		info.complete ? $entry.find('.title').html(info.name + " " + elements.$complete[0].outerHTML) : $entry.find('.title').html(info.name + " " + elements.$ongoing[0].outerHTML);
+		for(let x = 0; x < info.genres.length; x++) {
+			let $tempGenre = elements.$genre.clone();
+			$tempGenre.text(info.genres[x]);
+			$entry.find('.genres').append($tempGenre);
+		}
+
+		$entry.find('.views').text(info.views + " views");
+
+		for(let x = 0; x < info.otherNames.length; x++) {
+			let $tempGenre = elements.$otherName.clone();
+			$tempGenre.text(info.otherNames[x]);
+			$entry.find('.otherNames').append($tempGenre);
+			if(x != info.otherNames.length - 1) {
+			 $entry.find('.otherNames').append(elements.$bulletOtherName.clone());
+			}
+		}
+
+		info.description.length > 270 ? $entry.find('.description').text(info.description.substring(0, 300) + "...") : $entry.find('.description').text(info.description);
+		$entry.find('.description').attr("title", info.description);
+
+		$entry.click(function(e) {
+			e.preventDefault();
+			let infoIndex = $("input",this).val();
+			selectedAnimeInfo = formattedShows[infoIndex];
+			populateEpisodeList();
+		});
+		if($results.has('#animeLoading')) {
+			$('#animeLoading').remove();
+		}
+		$results.append($entry);
+		$results.append(elements.$breakline.clone());
+	}
+	function populateEpisodeList() {
 		$('#episode').css('background-image', 'linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.9)), url("' + selectedAnimeInfo.image +'")');
 		$('#episode').css('background-position', 'top center');
 		$('#episode').css('background-size', 'cover');
@@ -231,12 +232,8 @@ $(function() {
 		    }
 		});
 	}
-
-	/**
-	 * When you click an episode from the episodeList
-	 * @param  {jqueryObj} episode episode anchor tag as jquery objected
-	 */
 	function playEpisode($episode) {
+		saveAnime();
 		$('video').remove();
 		let link = $episode.attr('href');
 		let episodeNumber = $episode.attr('index');
@@ -261,6 +258,41 @@ $(function() {
 		$('#videoLoading').show();
 		$('#videoDiv').show();
 	}
+	function saveAnime() {
+		let recentlyWatched;
+		if(localStorage.recentlyWatched) {
+			recentlyWatched = JSON.parse(localStorage.recentlyWatched);
+			// console.log("1: ");
+			// console.dir(recentlyWatched);
+			if(recentlyWatched.length > 4) {
+				let animeNotInList = true;
+				for(let i = 0; i < recentlyWatched.length; i++) {
+					if(recentlyWatched[i].url === selectedAnimeInfo.url) {
+						recentlyWatched.splice(i, 1);
+						animeNotInList = false;
+					}
+				}
+				if(animeNotInList) {
+					recentlyWatched.pop();
+				}
+			}
+			recentlyWatched.unshift(selectedAnimeInfo);
+			// console.log("2: ");
+			// console.dir(recentlyWatched);
+		} else {
+			recentlyWatched = [selectedAnimeInfo];
+		}
+		localStorage.recentlyWatched = JSON.stringify(recentlyWatched);
+		// console.dir(recentlyWatched);
+	}
+
+
+	
+
+	/**
+	 * When you click an episode from the episodeList
+	 * @param  {jqueryObj} episode episode anchor tag as jquery objected
+	 */
 
 	ipc.on('video-link', function(e, videoInfo) {
 		let link = videoInfo.link + "&q=";
@@ -294,25 +326,26 @@ $(function() {
 
 	$(document).on('keypress', function(e) {
 		if(e.keyCode == 32) {
-			let $video = $('video').get(0);
-			if($video) {
-				if($video.paused) {
-					$video.play();
-				} else {
-					$video.pause();
+			if($('#videoDiv').is(':visible')) {
+				let $video = $('video').get(0);
+				if($video) {
+					if($video.paused) {
+						$video.play();
+					} else {
+						$video.pause();
+					}
 				}
 			}
 		}
 	});
 
-	// function nextVideoListener(video) {
-	// 	video.addEventListener('ended', function(e) {
-	// 		$('body').html('<center><h1 class="blue">Starting next video...</h1></center>');
-	// 		console.log(anime.episodeNumber);
-	// 		let nextEpisodeNumber = parseInt(anime.episodeNumber) + 1;
-	// 		ipc.send('play-next-episode', nextEpisodeNumber);
-	// 	});
-	// }
+	//Start command - recently watched
+	if(localStorage.recentlyWatched) {
+		let recentlyWatched = JSON.parse(localStorage.recentlyWatched);
+		for(let i = 0; i < recentlyWatched.length; i++) {
+			populateAnimeWindow(recentlyWatched[i]);
+		}
+	}
 
 	
 });
