@@ -264,17 +264,15 @@ $(function() {
 			recentlyWatched = JSON.parse(localStorage.recentlyWatched);
 			// console.log("1: ");
 			// console.dir(recentlyWatched);
-			if(recentlyWatched.length > 4) {
-				let animeNotInList = true;
-				for(let i = 0; i < recentlyWatched.length; i++) {
-					if(recentlyWatched[i].url === selectedAnimeInfo.url) {
-						recentlyWatched.splice(i, 1);
-						animeNotInList = false;
-					}
+			let animeNotInList = true;
+			for(let i = 0; i < recentlyWatched.length; i++) {
+				if(recentlyWatched[i].url === selectedAnimeInfo.url) {
+					recentlyWatched.splice(i, 1);
+					animeNotInList = false;
 				}
-				if(animeNotInList) {
-					recentlyWatched.pop();
-				}
+			}
+			if(animeNotInList && recentlyWatched.length > 4) {
+				recentlyWatched.pop();
 			}
 			recentlyWatched.unshift(selectedAnimeInfo);
 			// console.log("2: ");
@@ -324,19 +322,34 @@ $(function() {
 		});
 	});
 
-	$(document).on('keypress', function(e) {
-		if(e.keyCode == 32) {
-			if($('#videoDiv').is(':visible')) {
-				let $video = $('video').get(0);
-				if($video) {
+	$(document).on('keyup', function(e) {
+		if($('#videoDiv').is(':visible')) {
+			let $video = $('video').get(0);
+			let keyCode = e.which;
+			if($video) {
+				if(keyCode == 32 || keyCode == 75) {//space or k
+					e.preventDefault();
 					if($video.paused) {
 						$video.play();
 					} else {
 						$video.pause();
 					}
 				}
+				if(keyCode == 39) {//right arrow
+					$video.currentTime += 5;
+				}
+				if(keyCode == 37) {//left arrow
+					$video.currentTime -= 5;
+				}
+				if(keyCode == 76) {//l
+					$video.currentTime += 10;
+				}
+				if(keyCode == 74) {//j
+					$video.currentTime -= 10;
+				}
 			}
 		}
+		
 	});
 
 	//Start command - recently watched
