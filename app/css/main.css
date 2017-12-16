@@ -187,6 +187,7 @@
 .episodeIterator {
 	font-size: 100px;
 	color: #7CFEF0;
+	cursor: pointer;
 }
 .episodeIterator:hover {
 	color: #00E6CD;
