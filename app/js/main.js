@@ -26,7 +26,9 @@ $(function() {
 		$infoIndex: $('<input class="infoIndex" type="hidden" value="">'),
 		$breakline: $('<hr class="breakline">'),
 		$loading: $('<center><img id="animeLoading" src="imgs/loading.gif"></center>'),
-		$noResults: $('<center><h2 id="noResults">No results</h2></center>')
+		$noResults: $('<center><h2 id="noResults">No results</h2></center>'),
+		$episodeContainer: $('<div class="episodeContainer"></div>'),
+		$episodeDownloadButton: $('<span class="episodedownloadbutton"><i class="fas fa-download"></i></span>')
 	}
 
 	$webview.addEventListener('found-in-page', function enableSearch(e) {
@@ -219,17 +221,35 @@ $(function() {
 		    let episodeList = $episodeList.getElementsByTagName('tr');
 
 		    for(let i = 2; i < episodeList.length; i++) {
-		    	let anchor = episodeList[i].getElementsByTagName('td')[0].getElementsByTagName('a')[0];
-		    	anchor.addEventListener('click', function(e) {
-		    		e.preventDefault();
-		    		let episode = $(this);
-		    		playEpisode(episode);
-		    	});
-		    	anchor.setAttribute("index", episodeList.length - i);
-		    	anchor.classList.add("episode");
-		    	$('.episodes')[0].append(anchor);
+		    	let index = episodeList.length - i;
+		    	let $episodeContainer = elements.$episodeContainer.clone();
+		    	let $episodeDownloadButton = elements.$episodeDownloadButton.clone();
+		    	let $anchor = episodeList[i].getElementsByTagName('td')[0].getElementsByTagName('a')[0];
+		    	$anchor = $($anchor);
+
+		    	$anchor.get(0).title = $anchor.text().trim();
+		    	$anchor.text("Episode " + index);
+		    	$anchor.attr("index", index);
+		    	$anchor.addClass("episode");
+		    	$episodeDownloadButton.attr("index", index);
+
+		    	$episodeContainer.append($anchor);
+		    	$episodeContainer.append($episodeDownloadButton);
+		    	$('.episodes')[0].append($episodeContainer.get(0));
 		    	$('.episodes')[0].append(document.createElement('hr'));
 		    }
+		    $('.episode').click(function(e) {
+		    	e.preventDefault();
+		    	let $episode = $(this);
+		    	playEpisode($episode);
+		    });
+		    $('.episodedownloadbutton').click(function(e) {
+		    	e.preventDefault();
+		    	let thisIndex = this.getAttribute('index');
+		    	let $episode = $('a[index="' + thisIndex + '"]');
+		    	downloadEpisode($episode);
+		    });
+
 		});
 	}
 	function playEpisode($episode) {
@@ -237,7 +257,7 @@ $(function() {
 		$('video').remove();
 		let link = $episode.attr('href');
 		let episodeNumber = $episode.attr('index');
-		let episodeName = $episode.text();
+		let episodeName = $episode.get(0).title;
 		/**
 		 * Anime object to send to official video page
 		 * @param name = Anime Name
@@ -282,6 +302,10 @@ $(function() {
 		}
 		localStorage.recentlyWatched = JSON.stringify(recentlyWatched);
 		// console.dir(recentlyWatched);
+	}
+	function downloadEpisode($episode) {
+		
+		console.log($episode.attr('href'));
 	}
 
 

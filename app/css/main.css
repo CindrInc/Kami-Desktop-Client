@@ -159,9 +159,25 @@
 	padding: 0;
 	margin: 0;
 	border: none;
+	text-align: center;
+}
+.episodeContainer {
+	position: relative;
+	text-align: center;
 }
 .episode {
 	color: #50FFB1;
+}
+.episodedownloadbutton {
+	color: #7CFEF0;
+	position: absolute;
+	top: 25%;
+	right: 35px;
+	font-size: .8em;
+	cursor: pointer;
+}
+.episodedownloadbutton:hover {
+	color: #00E6CD;
 }
 
 
