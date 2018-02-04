@@ -2,16 +2,16 @@
 
 const electron = require('electron');
 const {app, BrowserWindow, session, Menu} = electron;
+const {download} = require('electron-dl');
 const ipc = electron.ipcMain;
 
 
 console.log("Start!");
 
-const appDirectory = 'file://' + __dirname + '/app/'
+const appDirectory = 'file://' + __dirname + '/';
 const baseUrl = "http://kissanime.ru";
-let videoQuality = "high";
+let videoQuality = "720p";
 function setQuality(menuItem, browserWindow, event) {
-	mainWindow.webContents.send('change-quality', menuItem.id);
 	videoQuality = menuItem.id;
 }
 const menuTemplate = [
@@ -36,19 +36,25 @@ const menuTemplate = [
 				label: "720p",
 				id: "high",
 				type: "radio",
-				click: setQuality
+				click (menuItem, browserWindow, event) {
+					videoQuality = menuItem.label;
+				}
 			},
 			{
 				label: "480p",
 				id: "medium",
 				type: "radio",
-				click: setQuality
+				click (menuItem, browserWindow, event) {
+					videoQuality = menuItem.label;
+				}
 			},
 			{
 				label: "360p",
 				id: "low",
 				type: "radio",
-				click: setQuality
+				click (menuItem, browserWindow, event) {
+					videoQuality = menuItem.label;
+				}
 			}
 		],
 		click: function(){
@@ -96,21 +102,28 @@ app.on('ready', function() {
 	
 });
 
-ipc.on('selected-episode', function(e, anime) {
+ipc.on('get-episode-link', function(e, linkRequestObject) {
 	if(captchaWindow) {
 		captchaWindow.destroy();
 	}
 	captchaWindow = new BrowserWindow({
-		show: false,
+		// show: false,
 		height: 600,
 		width: 600
 	});
 
-	captchaWindow.loadURL(baseUrl + anime.link);
+	captchaWindow.loadURL(baseUrl + linkRequestObject.currentEpisode.link);
 	captchaWindow.webContents.on('did-finish-load', function(e) {
 		captchaWindow.webContents.executeJavaScript(
 			`
 			const ipc = require('electron').ipcRenderer;
+			function sendCaptchaSolved(rapidVideoUrl) {
+				let linkRequestObject = {
+					purpose: "${linkRequestObject.purpose}",
+					rapidVideoUrl: rapidVideoUrl
+				}
+				ipc.send('captcha-solved', linkRequestObject);
+			}
 			if(document.body.textContent.search("captcha") > -1) {
 				function tryPost() {
 					$.post('/Special/AreYouHuman2', {
@@ -127,7 +140,7 @@ ipc.on('selected-episode', function(e, anime) {
 							let rapidVideoUrl = data.match(/https:\\/\\/www.rapidvideo\\.com.+?"/g)[0];
 							rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
 							console.log(rapidVideoUrl);
-							ipc.send('captcha-solved', rapidVideoUrl);
+							sendCaptchaSolved(rapidVideoUrl);
 						}
 					});
 				}
@@ -135,7 +148,7 @@ ipc.on('selected-episode', function(e, anime) {
 			} else {
 				let rapidVideoUrl = document.body.innerHTML.match(/https:\\/\\/www.rapidvideo\\.com.+?"/g)[0];
 				rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
-				ipc.send('captcha-solved', rapidVideoUrl);
+				sendCaptchaSolved(rapidVideoUrl);
 			}
 
 			`);
@@ -143,17 +156,30 @@ ipc.on('selected-episode', function(e, anime) {
 
 });
 
-ipc.on('captcha-solved', function(e, rapidVideoUrl) {
+/**
+ * when captcha is solved
+ * @param  {object} e                  event
+ * @param  {object} linkRequestObject  multi-parameter object
+ *      rapidVideoUrl  link to rapidVideo
+ *      purpose        purpose of getting url
+ * @return {[type]}                    none
+ */
+ipc.on('captcha-solved', function(e, linkRequestObject) {
 	captchaWindow.destroy();
 	captchaWindow = null;
+
+	let link = linkRequestObject.rapidVideoUrl + "&q=" + videoQuality;
+
 	mainWindow.webContents.send('video-link', {
-		link: rapidVideoUrl,
-		videoQuality: videoQuality
+		link: link,
+		purpose: linkRequestObject.purpose
 	});
 });
 
-ipc.on('play-next-episode', function(e, nextEpisodeNumber) {
-	console.log("Next episode number: " + nextEpisodeNumber);
-	episodeListWindow.webContents.send('play-next-episode', nextEpisodeNumber);
+ipc.on('download-episode', function(e, downloadLink) {
+	console.log(downloadLink);
+	download(BrowserWindow.getFocusedWindow(), downloadLink, {
+		saveAs: true
+	});
 });
 

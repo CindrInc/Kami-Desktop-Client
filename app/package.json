@@ -1,22 +1,22 @@
 {
   "name": "kami-desktop-client",
   "productName": "Kami Desktop Client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Desktop client for Kami",
   "main": "app.js",
   "directories": {
     "test": "tests"
   },
   "dependencies": {
-    "electron": "^1.8.1"
+    "electron-dl": "^1.10.0"
   },
   "devDependencies": {},
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "package:mac": "electron-packager . --overwrite --platform=darwin --icon=./assets/mac_logo.icns --out=./builds",
-    "package:win": "electron-packager . --overwrite --platform=win32 --icon=./assets/windows_logo.ico --out=./builds",
-    "package:linux": "electron-packager . --overwrite --platform=linux --icon=./assets/linux_logo.png --out=./builds"
+    "package:mac": "electron-packager . --overwrite --platform=darwin --icon=../assets/mac_logo.icns --out=../builds",
+    "package:win": "electron-packager . --overwrite --platform=win32 --icon=../assets/windows_logo.ico --out=../builds",
+    "package:linux": "electron-packager . --overwrite --platform=linux --icon=../assets/linux_logo.png --out=../builds"
   },
   "repository": {
     "type": "git",

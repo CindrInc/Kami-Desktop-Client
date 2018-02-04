@@ -1,4 +1,11 @@
 const ipc = require('electron').ipcRenderer;
+function sendCaptchaSolved(rapidVideoUrl) {
+	let linkRequestObject = {
+		purpose: "${linkRequestObject.purpose}",
+		rapidVideoUrl: rapidVideoUrl
+	}
+	ipc.send('captcha-solved', linkRequestObject);
+}
 if(document.body.textContent.search("captcha") > -1) {
 	function tryPost() {
 		$.post('/Special/AreYouHuman2', {
@@ -15,7 +22,7 @@ if(document.body.textContent.search("captcha") > -1) {
 				let rapidVideoUrl = data.match(/https:\/\/www.rapidvideo\.com.+?"/g)[0];
 				rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
 				console.log(rapidVideoUrl);
-				ipc.send('captcha-solved', rapidVideoUrl);
+				sendCaptchaSolved(rapidVideoUrl);
 			}
 		});
 	}
@@ -23,5 +30,5 @@ if(document.body.textContent.search("captcha") > -1) {
 } else {
 	let rapidVideoUrl = document.body.innerHTML.match(/https:\/\/www.rapidvideo\.com.+?"/g)[0];
 	rapidVideoUrl = rapidVideoUrl.substring(0, rapidVideoUrl.length - 1);
-	ipc.send('captcha-solved', rapidVideoUrl);
+	sendCaptchaSolved(rapidVideoUrl);
 }

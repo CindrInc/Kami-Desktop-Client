@@ -5,6 +5,14 @@ $(function() {
 	let $response;
 	let formattedShows = [];
 	let selectedAnimeInfo;
+	/**
+	 * Anime object to send to official video page
+	 * @param name = Anime Name
+	 * @param episodeNumber = Episode Number
+	 * @param link = Episode link
+	 * @param episodeName = Episode Name
+	 * @type {Object}
+	 */
 	let currentEpisode;
 	
 	/**
@@ -252,27 +260,43 @@ $(function() {
 
 		});
 	}
-	function playEpisode($episode) {
+
+	/**
+	 * run actions on picked episode
+	 * @param  {jqueryObj} $episode episode element picked
+	 * @return {[type]}          none
+	 */
+	function pickEpisode($episode) {
 		saveAnime();
-		$('video').remove();
 		let link = $episode.attr('href');
 		let episodeNumber = $episode.attr('index');
 		let episodeName = $episode.get(0).title;
-		/**
-		 * Anime object to send to official video page
-		 * @param name = Anime Name
-		 * @param episodeNumber = Episode Number
-		 * @param link = Episode link
-		 * @param episodeName = Episode Name
-		 * @type {Object}
-		 */
+
 		currentEpisode = {
 			name: selectedAnimeInfo.name,
 			link: link,
 			episodeNumber: episodeNumber,
 			episodeName: episodeName
 		};
-		ipc.send('selected-episode', currentEpisode);
+	}
+	/**
+	 * send to main process to solve captcha and extract video link
+	 * @param  {string} purpose purpose of link (play, download)
+	 * @return {[type]}         none
+	 */
+	function getEpisodeLink(purpose) {
+		let linkRequestObject = {
+			currentEpisode: currentEpisode,
+			purpose: purpose
+		}
+		ipc.send('get-episode-link', linkRequestObject);
+	}
+	function playEpisode($episode) {
+		$('video').remove();
+		pickEpisode($episode);
+
+		getEpisodeLink("play");
+
 		$('#episodeTitle').text(currentEpisode.name);
 		$('#episodeNumber').text("Episode #: " + currentEpisode.episodeNumber);
 		$('#videoLoading').show();
@@ -304,7 +328,8 @@ $(function() {
 		// console.dir(recentlyWatched);
 	}
 	function downloadEpisode($episode) {
-		
+		pickEpisode($episode);
+		getEpisodeLink("download");
 		console.log($episode.attr('href'));
 	}
 
@@ -316,33 +341,23 @@ $(function() {
 	 * @param  {jqueryObj} episode episode anchor tag as jquery objected
 	 */
 
-	ipc.on('video-link', function(e, videoInfo) {
-		let link = videoInfo.link + "&q=";
-		switch(videoInfo.videoQuality) {
-			case 'high':
-				link += "720p";
-				break;
-			case 'medium':
-				link += "480p";
-				break;
-			case 'low':
-				link += "360p";
-				break;
-			default:
-				console.log("Crap. Not a possible quality. What the hell went wrong???");
-		}
+	ipc.on('video-link', function(e, info) {
 
-		$.get(link, function(data){
+		$.get(info.link, function(data){
 			let $data = $(data);
 			let videoLink = $data.find('video source').attr('src');
-			let $video = $('<video>', {
-				src: videoLink
-			});
-			$video.prop("controls", true);
-			$video.prop("autoplay", true);
-			// nextVideoListener($video.get(0));
-			$('#videoLoading').hide();
-			$('#videoDiv').append($video);
+
+			if(info.purpose == "play") {
+				let $video = $('<video>', {
+					src: videoLink
+				});
+				$video.prop("controls", true);
+				$video.prop("autoplay", true);
+				$('#videoLoading').hide();
+				$('#videoDiv').append($video);
+			} else if(info.purpose == "download") {
+				ipc.send('download-episode', videoLink);
+			}
 		});
 	});
 
@@ -351,8 +366,8 @@ $(function() {
 			let $video = $('video').get(0);
 			let keyCode = e.which;
 			if($video) {
+				e.preventDefault();
 				if(keyCode == 32 || keyCode == 75) {//space or k
-					e.preventDefault();
 					if($video.paused) {
 						$video.play();
 					} else {
@@ -371,6 +386,7 @@ $(function() {
 				if(keyCode == 74) {//j
 					$video.currentTime -= 10;
 				}
+				return false;
 			}
 		}
 		

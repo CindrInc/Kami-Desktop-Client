@@ -14,5 +14,5 @@ Order/List
 	1. Add download button
 	2. Start download
 	3. Show downloading list
-	4. Add download to download list
-	5. Settings to change quality of download
+	4. Add download to download list (queue)
+	5. Settings to set download location
