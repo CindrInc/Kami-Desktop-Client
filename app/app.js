@@ -91,6 +91,7 @@ app.on('ready', function() {
 	mainWindow = new BrowserWindow({
 		height: 600,
 		width: 1100,
+		autoHideMenuBar: true,
 		backgroundColor: '#171A21'
 	});
 
@@ -107,7 +108,7 @@ ipc.on('get-episode-link', function(e, linkRequestObject) {
 		captchaWindow.destroy();
 	}
 	captchaWindow = new BrowserWindow({
-		// show: false,
+		show: false,
 		height: 600,
 		width: 600
 	});

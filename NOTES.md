@@ -11,8 +11,8 @@ Red: #FF6F59
 ## Download Feature
 
 Order/List
-	1. Add download button
-	2. Start download
+	1. Add download button *check*
+	2. Start download *check*
 	3. Show downloading list
 	4. Add download to download list (queue)
 	5. Settings to set download location

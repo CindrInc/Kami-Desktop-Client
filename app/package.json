@@ -10,7 +10,9 @@
   "dependencies": {
     "electron-dl": "^1.10.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron": "^1.7.12"
+  },
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
