@@ -1,7 +1,9 @@
 # Kami-Desktop-Client
 Desktop client for Kami™
 
-![](http://oi67.tinypic.com/207ni3l.jpg)
+[//]: # (http://oi67.tinypic.com/207ni3l.jpg)
+
+![] (http://oi68.tinypic.com/n2ztyw.jpg)
 
 Watch anime with this desktop client.
 No ads. No captcha.
